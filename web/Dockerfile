@@ -42,18 +42,21 @@ RUN apt-get install -y python3-dev python3-pip python3-setuptools \
 WORKDIR /var/www
 RUN chown www-data:www-data /var/www
 USER www-data
-RUN git clone https://github.com/MISP/MISP.git
+RUN git clone https://github.com.cnpmjs.org/MISP/MISP.git
 WORKDIR /var/www/MISP
 RUN git checkout tags/$(git describe --tags `git rev-list --tags --max-count=1`) && \
+    sed -i "s/github.com\//github.com.cnpmjs.org\//g" .gitmodules && \
     git config core.filemode false && \
+    git submodule update --init && \
+    find . -name .gitmodules -exec sed -i "s/github.com\//github.com.cnpmjs.org\//g" '{}' \; && \
     git submodule update --init --recursive && \
     git submodule foreach --recursive git config core.filemode false
 
 USER root
-RUN pip3 install git+https://github.com/STIXProject/python-stix.git \
-                 git+https://github.com/CybOXProject/python-cybox.git \
-                 git+https://github.com/CybOXProject/mixbox.git \
-                 git+https://github.com/MAECProject/python-maec.git \
+RUN pip3 install git+https://github.com.cnpmjs.org/STIXProject/python-stix.git \
+                 git+https://github.com.cnpmjs.org/CybOXProject/python-cybox.git \
+                 git+https://github.com.cnpmjs.org/CybOXProject/mixbox.git \
+                 git+https://github.com.cnpmjs.org/MAECProject/python-maec.git \
                  /var/www/MISP/cti-python-stix2 \
                  plyara
 
