@@ -131,10 +131,10 @@ RUN chmod a+x /var/www/MISP/app/Console/worker/start.sh && \
 
 # Install templates & stuff
 WORKDIR /var/www/MISP/app/files
-RUN rm -rf misp-objects && git clone https://github.com/MISP/misp-objects.git && \
-    rm -rf misp-galaxy && git clone https://github.com/MISP/misp-galaxy.git && \
-    rm -rf warninglists && git clone https://github.com/MISP/misp-warninglists.git ./warninglists && \
-    rm -rf taxonomies && git clone https://github.com/MISP/misp-taxonomies.git ./taxonomies && \
+RUN rm -rf misp-objects && git clone https://github.com.cnpmjs.org/MISP/misp-objects.git && \
+    rm -rf misp-galaxy && git clone https://github.com.cnpmjs.org/MISP/misp-galaxy.git && \
+    rm -rf warninglists && git clone https://github.com.cnpmjs.org/MISP/misp-warninglists.git ./warninglists && \
+    rm -rf taxonomies && git clone https://github.com.cnpmjs.org/MISP/misp-taxonomies.git ./taxonomies && \
     chown -R www-data:www-data misp-objects misp-galaxy warninglists taxonomies
 
 # Install MISP build requirements
@@ -142,8 +142,18 @@ RUN sudo -E apt-get -y install libpoppler73 libpoppler-dev libpoppler-cpp-dev
 
 # Install MISP Modules
 WORKDIR /opt
-RUN git clone https://github.com/MISP/misp-modules.git
+RUN git clone https://github.com.cnpmjs.org/MISP/PyMISP.git && \
+    cd PyMISP && \
+    sed -i "s/github.com\//github.com.cnpmjs.org\//g" .gitmodules && \
+    git submodule update --init --recursive && \
+    pip3 install -I . && \
+    cd .. && \
+    rm -rf PyMISP
+
+RUN git clone https://github.com.cnpmjs.org/MISP/misp-modules.git
 RUN cd misp-modules && \
+    sed -i '6d' REQUIREMENTS && \
+    sed -i "s/github.com\//github.com.cnpmjs.org\//g" REQUIREMENTS && \
     pip3 install -I -r REQUIREMENTS && \
     pip3 install -I . && \
     echo "sudo -u www-data misp-modules -s -l 127.0.0.1 &" >>/etc/rc.local
