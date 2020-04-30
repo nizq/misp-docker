@@ -72,7 +72,9 @@ RUN curl --fail --location -o composer-setup.php https://getcomposer.org/install
     php -r "unlink('composer-setup.php');"
 # END FIX
 
-RUN php composer.phar update && \
+RUN php composer.phar config -g repo.packagist composer https://mirrors.aliyun.com/composer/ && \
+    php composer.phar config --unset repos.packagist && \
+    php composer.phar update && \
     php composer.phar config vendor-dir Vendor && \
     php composer.phar install --ignore-platform-reqs
 USER root
